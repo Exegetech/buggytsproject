@@ -1,0 +1,43 @@
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
+load("@aspect_rules_js//js:defs.bzl", "js_library")
+load("@bazel_skylib//lib:partial.bzl", "partial")
+load("@aspect_rules_swc//swc:defs.bzl", "swc")
+load("@aspect_rules_esbuild//esbuild:defs.bzl", "esbuild")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+npm_link_all_packages(name = "node_modules")
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+)
+
+ts_project(
+    name = "src_files",
+    srcs = glob([
+        "src/*.ts",
+    ]),
+    allow_js = True,
+    declaration = True,
+    resolve_json_module = True,
+    supports_workers = False,
+    # transpiler = partial.make(
+    #     swc,
+    # ),
+    tsconfig = ":tsconfig",
+    deps = [
+        ":node_modules",
+    ],
+)
+
+esbuild(
+    name = "build",
+    srcs = [
+        ":src_files",
+    ],
+    entry_point = "src/index.js",
+    external = ["pg-native"],
+    output_dir = True,
+    platform = "node",
+)

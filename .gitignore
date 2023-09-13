@@ -1,0 +1,6 @@
+node_modules
+bazel-bin
+bazel-buggytsproject
+bazel-out
+bazel-testlogs
+
